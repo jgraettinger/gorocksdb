@@ -144,20 +144,6 @@ func (opts *BlockBasedTableOptions) SetUseDeltaEncoding(value bool) {
 	C.rocksdb_block_based_options_set_use_delta_encoding(opts.c, boolToChar(value))
 }
 
-// SetFilterPolicy sets the filter policy opts reduce disk reads.
-// Many applications will benefit from passing the result of
-// NewBloomFilterPolicy() here.
-// Default: nil
-func (opts *BlockBasedTableOptions) SetFilterPolicy(fp FilterPolicy) {
-	if nfp, ok := fp.(nativeFilterPolicy); ok {
-		opts.cFp = nfp.c
-	} else {
-		idx := registerFilterPolicy(fp)
-		opts.cFp = C.gorocksdb_filterpolicy_create(C.uintptr_t(idx))
-	}
-	C.rocksdb_block_based_options_set_filter_policy(opts.c, opts.cFp)
-}
-
 // SetNoBlockCache specify whether block cache should be used or not.
 // Default: false
 func (opts *BlockBasedTableOptions) SetNoBlockCache(value bool) {
@@ -173,14 +159,6 @@ func (opts *BlockBasedTableOptions) SetNoBlockCache(value bool) {
 func (opts *BlockBasedTableOptions) SetBlockCache(cache *Cache) {
 	opts.cache = cache
 	C.rocksdb_block_based_options_set_block_cache(opts.c, cache.c)
-}
-
-// SetBlockCacheCompressed sets the cache for compressed blocks.
-// If nil, rocksdb will not use a compressed block cache.
-// Default: nil
-func (opts *BlockBasedTableOptions) SetBlockCacheCompressed(cache *Cache) {
-	opts.compCache = cache
-	C.rocksdb_block_based_options_set_block_cache_compressed(opts.c, cache.c)
 }
 
 // SetWholeKeyFiltering specify if whole keys in the filter (not just prefixes)
